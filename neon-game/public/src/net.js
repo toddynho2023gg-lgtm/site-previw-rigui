@@ -1,0 +1,7 @@
+export class NetClient{
+ constructor(){this.ws=null;this.handlers=new Map();this.playerId=null;this.session=localStorage.getItem('nd_session')||'';this.room='';this.rtt=0;this.connected=false;this.lastSnapshot=null;this._pingTimer=null}
+ on(type,fn){if(!this.handlers.has(type))this.handlers.set(type,new Set());this.handlers.get(type).add(fn);return()=>this.handlers.get(type)?.delete(fn)}
+ emit(type,msg){for(const fn of this.handlers.get(type)||[])try{fn(msg)}catch(e){console.error(e)}}
+ connect({name,room}){return new Promise((resolve,reject)=>{const proto=location.protocol==='https:'?'wss':'ws';const ws=this.ws=new WebSocket(`${proto}://${location.host}/ws`);const to=setTimeout(()=>reject(new Error('Tempo esgotado ao conectar')),7000);ws.onopen=()=>ws.send(JSON.stringify({type:'join',name,room,session:this.session}));ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(m.type==='welcome'){clearTimeout(to);this.playerId=m.playerId;this.session=m.session;this.room=m.room;this.connected=true;localStorage.setItem('nd_session',this.session);this.lastSnapshot=m.state;resolve(m)}if(m.type==='snapshot')this.lastSnapshot=m.state;if(m.type==='pong'){this.rtt=performance.now()-m.t}this.emit(m.type,m)};ws.onerror=()=>reject(new Error('Falha de WebSocket'));ws.onclose=()=>{this.connected=false;this.emit('disconnect',{})};this._pingTimer=setInterval(()=>{if(ws.readyState===1)ws.send(JSON.stringify({type:'ping',t:performance.now()}))},1500)})}
+ send(type,payload={}){if(this.ws?.readyState===1)this.ws.send(JSON.stringify({type,...payload}))}
+}
