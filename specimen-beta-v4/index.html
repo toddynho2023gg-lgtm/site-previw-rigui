@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#080b0c">
+<title>Containment: Hospital Beta V4</title>
+<link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<div id="grain"></div><div id="vignette"></div><div id="danger"></div><div id="damageFlash"></div>
+<div id="hud">
+  <div id="objective">Objetivo: procure uma forma de acessar a manutenção.</div>
+  <div id="location">HOSPITAL SANTA HELENA · ALA DE EMERGÊNCIA</div>
+  <div id="mapWrap"><canvas id="mini" width="276" height="204"></canvas></div><div id="hint">MAPA DA ALA</div>
+  <div id="crosshair"></div><div id="prompt"></div>
+  <div id="inventory"><span id="iKey" class="inv">CHAVE MANUT.</span><span id="iFuse" class="inv">FUSÍVEL</span><span id="iBlue" class="inv">CARTÃO AZUL</span><span id="iRed" class="inv">CARTÃO VERMELHO</span><span id="iMaster" class="inv">CHAVE MESTRA</span><span id="iGun" class="inv weapon">PISTOLA</span></div>
+  <div id="stats"><div class="stat">VIDA <b id="hpText">100</b><div class="bar"><i id="hpBar"></i></div></div><div class="stat">ENERGIA <b id="powerText">OFF</b></div></div>
+  <div id="ammoHud">12 / 24</div>
+</div>
+<div id="mobile"><div id="stickZone"><div id="stickBase"></div><div id="stickKnob"></div></div><button id="useBtn" class="mbtn">USAR</button><button id="lightBtn" class="mbtn">LUZ</button><button id="runBtn" class="mbtn">CORRER</button><button id="shootBtn" class="mbtn">ATIRAR</button></div>
+<div id="start" class="screen"><div class="card"><div class="eyebrow">Three.js · Hospital Survival Horror</div><h1>CONTAINMENT<br>HOSPITAL</h1><p>O hospital foi evacuado às pressas. A energia principal caiu e alguma coisa continua se movendo entre as alas. Encontre acesso à manutenção, restaure o sistema e procure uma saída.</p><div class="controls"><div><b>PC:</b> WASD + mouse</div><div><b>E:</b> usar / abrir</div><div><b>Shift:</b> correr</div><div><b>F:</b> lanterna</div><div><b>Mouse:</b> atirar quando armado</div><div><b>Celular:</b> analógico + arraste para olhar</div></div><button id="startBtn">ENTRAR NO HOSPITAL</button><div class="small">V4: mapa hospitalar completo, portas, chaves, arma, IA, iluminação PBR procedural e progressão encadeada.</div></div></div>
+<div id="ending" class="screen hidden"><div class="card"><div class="eyebrow" id="endEyebrow"></div><h1 id="endTitle"></h1><p id="endText"></p><button onclick="location.reload()">JOGAR NOVAMENTE</button></div></div>
+<script type="module" src="./main.js"></script>
+
+</body>
+</html>
