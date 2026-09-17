@@ -3,6 +3,16 @@ export const GAME = Object.freeze({
   PLAYER_MAX_SPEED:8.5,PLAYER_RADIUS:.34,PLAYER_HEIGHT:1.7,INTERACT_RANGE:2.35,DEFAULT_FOV:80,
 });
 
+export const OUTFITS = Object.freeze({
+  classic_dealer:{label:'Classic Dealer',primary:[0.16,0.45,0.72],secondary:[0.93,0.90,0.78],accent:[0.96,0.64,0.12],pants:[0.08,0.11,0.18],shoes:[0.04,0.05,0.07],hair:[0.10,0.06,0.03]},
+  neon_runner:{label:'Neon Runner',primary:[0.05,0.66,0.64],secondary:[0.08,0.12,0.18],accent:[0.72,0.95,0.18],pants:[0.06,0.09,0.13],shoes:[0.03,0.05,0.06],hair:[0.08,0.05,0.03]},
+  velvet_highroller:{label:'Velvet Highroller',primary:[0.58,0.08,0.18],secondary:[0.95,0.82,0.62],accent:[0.96,0.68,0.16],pants:[0.13,0.05,0.09],shoes:[0.05,0.03,0.04],hair:[0.07,0.04,0.02]},
+  street_gambler:{label:'Street Gambler',primary:[0.18,0.24,0.34],secondary:[0.90,0.34,0.12],accent:[0.12,0.72,0.82],pants:[0.07,0.08,0.10],shoes:[0.03,0.03,0.04],hair:[0.12,0.08,0.04]},
+  lucky_jacket:{label:'Lucky Jacket',primary:[0.16,0.56,0.25],secondary:[0.92,0.86,0.70],accent:[0.98,0.76,0.12],pants:[0.08,0.12,0.11],shoes:[0.04,0.05,0.04],hair:[0.05,0.04,0.03]},
+  midnight_fit:{label:'Midnight Fit',primary:[0.34,0.16,0.62],secondary:[0.12,0.14,0.22],accent:[0.12,0.68,0.86],pants:[0.05,0.06,0.10],shoes:[0.02,0.03,0.05],hair:[0.03,0.03,0.04]}
+});
+export const DEFAULT_OUTFIT='classic_dealer';
+
 export const MACHINE_CATALOG = Object.freeze({
   roulette:{label:'Roleta Royale',family:'wheel',pos:[-15,-11],minBet:10,maxBet:1000,cooldownMs:3600,choices:['red','black']},
   blackjack:{label:'Blackjack Privé',family:'cards',pos:[-5,-11],minBet:10,maxBet:1000,cooldownMs:250},
