@@ -2,11 +2,32 @@
 <div id="loading" class="screen"><div class="brand">NEON <b>DEBT</b></div><div class="loadbar"><i id="loadFill"></i></div><div id="loadText">Inicializando renderer…</div></div>
 <div id="menu" class="screen hidden"><div class="menuCard"><div class="eyebrow">CASINO CRAWLER • WEB</div><h1>NEON DEBT</h1><p>Uma run. Uma conta. Péssimas decisões em grupo.</p><label>Nome<input id="nameInput" maxlength="18" value="Guest"></label><label>Sala<input id="roomInput" maxlength="10" value="CASINO"></label><button id="playBtn">ENTRAR NO CASSINO</button><div class="hint">PC: WASD • Shift • Espaço • E • mouse. Mobile: analógico esquerdo • arraste o lado direito para olhar • botões de ação.</div></div></div>
 
-<div id="lobby" class="screen hidden"><div class="menuCard"><div class="eyebrow">SALA <span id="lobbyCode"></span></div><h1>LOBBY</h1><p>Todos compartilham o mesmo saldo. O cronômetro começa apenas quando o dono iniciar.</p><div id="lobbyPlayers" class="lobbyPlayers"></div><div class="lobbyActions"><button id="readyBtn">PRONTO</button><button id="startBtn" class="secondary">INICIAR RUN</button></div><div id="lobbyHint" class="hint"></div></div></div>
+<div id="lobby" class="screen hidden">
+ <div class="lobbyShell">
+  <div class="lobbyHeader"><div><div class="eyebrow">SALA <span id="lobbyCode"></span></div><h1>PREPARE-SE</h1><p>Escolha seu visual antes de ficar pronto. A roupa é sincronizada para todos.</p></div><div class="lobbyStamp">CARTOON CASINO</div></div>
+  <div class="lobbyGrid">
+   <section class="closetCard">
+    <div class="sectionTitle"><span>01</span><div><b>SEU VISUAL</b><small>Troque antes do PRONTO</small></div></div>
+    <div id="outfitPreview" class="outfitPreview">
+      <div class="previewGlow"></div><div class="previewAvatar"><i class="pvHead"></i><i class="pvHair"></i><i class="pvBody"></i><i class="pvAccent"></i><i class="pvLeg l"></i><i class="pvLeg r"></i></div>
+      <div class="previewName" id="outfitName">Classic Dealer</div>
+    </div>
+    <div id="outfitGrid" class="outfitGrid"></div>
+    <div id="outfitLock" class="outfitLock">Escolha livremente enquanto não estiver pronto.</div>
+   </section>
+   <section class="partyCard">
+    <div class="sectionTitle"><span>02</span><div><b>GRUPO</b><small>Todos dividem o mesmo saldo</small></div></div>
+    <div id="lobbyPlayers" class="lobbyPlayers"></div>
+    <div class="lobbyActions"><button id="readyBtn">PRONTO</button><button id="startBtn" class="secondary">INICIAR RUN</button></div>
+    <div id="lobbyHint" class="hint"></div>
+   </section>
+  </div>
+ </div>
+</div>
 <canvas id="game"></canvas>
 <div id="hud" class="hidden">
  <div class="topHud"><div class="dayPill">DIA <b id="day">1</b></div><div id="timer" class="timer">05:00</div><div class="economy"><span>SALDO</span><b id="balance">$1.000</b><small>QUOTA <strong id="quota">$1.200</strong></small></div></div>
- <div id="playerList" class="playerList"></div><div id="crosshair">+</div><div id="prompt" class="prompt hidden"></div><div id="toastWrap"></div>
+ <div id="playerList" class="playerList"></div><div id="crosshair">+</div><div id="machineHud" class="machineHud hidden"><span id="machineHudState">PRONTA</span><b id="machineHudName"></b><small id="machineHudInfo"></small></div><div id="prompt" class="prompt hidden"></div><div id="toastWrap"></div>
  <div class="bottom"><span id="roomLabel"></span><span id="net">● 0 ms</span><button id="settingsBtn">⚙</button></div>
 </div>
 <div id="mobileControls" class="mobileControls hidden" aria-label="Controles mobile">
