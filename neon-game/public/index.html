@@ -1,6 +1,6 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Neon Debt — Web Vertical Slice</title><link rel="stylesheet" href="/style.css"></head><body>
 <div id="loading" class="screen"><div class="brand">NEON <b>DEBT</b></div><div class="loadbar"><i id="loadFill"></i></div><div id="loadText">Inicializando renderer…</div></div>
-<div id="menu" class="screen hidden"><div class="menuCard"><div class="eyebrow">CASINO CRAWLER • WEB</div><h1>NEON DEBT</h1><p>Uma run. Uma conta. Péssimas decisões em grupo.</p><label>Nome<input id="nameInput" maxlength="18" value="Guest"></label><label>Sala<input id="roomInput" maxlength="10" value="CASINO"></label><button id="playBtn">ENTRAR NO CASSINO</button><div class="hint">WASD mover • Shift correr • Espaço pular • E interagir • clique para capturar o mouse</div></div></div>
+<div id="menu" class="screen hidden"><div class="menuCard"><div class="eyebrow">CASINO CRAWLER • WEB</div><h1>NEON DEBT</h1><p>Uma run. Uma conta. Péssimas decisões em grupo.</p><label>Nome<input id="nameInput" maxlength="18" value="Guest"></label><label>Sala<input id="roomInput" maxlength="10" value="CASINO"></label><button id="playBtn">ENTRAR NO CASSINO</button><div class="hint">PC: WASD • Shift • Espaço • E • mouse. Mobile: analógico esquerdo • arraste o lado direito para olhar • botões de ação.</div></div></div>
 
 <div id="lobby" class="screen hidden"><div class="menuCard"><div class="eyebrow">SALA <span id="lobbyCode"></span></div><h1>LOBBY</h1><p>Todos compartilham o mesmo saldo. O cronômetro começa apenas quando o dono iniciar.</p><div id="lobbyPlayers" class="lobbyPlayers"></div><div class="lobbyActions"><button id="readyBtn">PRONTO</button><button id="startBtn" class="secondary">INICIAR RUN</button></div><div id="lobbyHint" class="hint"></div></div></div>
 <canvas id="game"></canvas>
@@ -8,6 +8,16 @@
  <div class="topHud"><div class="dayPill">DIA <b id="day">1</b></div><div id="timer" class="timer">05:00</div><div class="economy"><span>SALDO</span><b id="balance">$1.000</b><small>QUOTA <strong id="quota">$1.200</strong></small></div></div>
  <div id="playerList" class="playerList"></div><div id="crosshair">+</div><div id="prompt" class="prompt hidden"></div><div id="toastWrap"></div>
  <div class="bottom"><span id="roomLabel"></span><span id="net">● 0 ms</span><button id="settingsBtn">⚙</button></div>
+</div>
+<div id="mobileControls" class="mobileControls hidden" aria-label="Controles mobile">
+ <div id="lookZone" class="lookZone" aria-label="Arraste para mover a câmera"></div>
+ <div id="moveStick" class="joystick" aria-label="Analógico de movimento"><i></i></div>
+ <div class="mobileActions">
+  <button id="mobileSprint" class="mobBtn mobSmall" type="button">CORRER</button>
+  <button id="mobileThrow" class="mobBtn mobSmall" type="button">ARREM.</button>
+  <button id="mobileInteract" class="mobBtn mobMain" type="button">USAR</button>
+  <button id="mobileJump" class="mobBtn mobMain" type="button">PULAR</button>
+ </div>
 </div>
 <div id="machinePanel" class="panel hidden"><button class="close" id="machineClose">×</button><div id="machineBody"></div></div>
 <div id="settings" class="panel hidden"><button class="close" id="settingsClose">×</button><h2>CONFIGURAÇÕES</h2><label>Qualidade<select id="quality"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>ULTRA</option></select></label><label>Sensibilidade<input id="sensitivity" type="range" min="0.05" max="0.6" step="0.01" value="0.20"></label><label>FOV<input id="fov" type="range" min="65" max="110" step="1" value="80"></label><div class="stat" id="rendererInfo"></div></div>
