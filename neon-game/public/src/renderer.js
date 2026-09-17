@@ -108,7 +108,7 @@ function cylinderMesh(gl,seg=28){
 function sphereMesh(gl,lat=14,lon=20){
   const p=[],n=[],idx=[];
   for(let y=0;y<=lat;y++){const v=y/lat,phi=v*Math.PI;for(let x=0;x<=lon;x++){const u=x/lon,th=u*Math.PI*2;const sx=Math.sin(phi)*Math.cos(th),sy=Math.cos(phi),sz=Math.sin(phi)*Math.sin(th);p.push(sx,sy,sz);n.push(sx,sy,sz);}}
-  for(let y=0;y<lat;y++)for(let x=0;x<lon;x++){const a=y*(lon+1)+x,b=a+lon+1;idx.push(a,b,a+1,b,b+1,a+1);}
+  for(let y=0;y<lat;y++)for(let x=0;x<lon;x++){const a=y*(lon+1)+x,b=a+lon+1;idx.push(a,a+1,b,b,a+1,b+1);}
   return makeMesh(gl,p,n,idx);
 }
 const MAT={default:0,stone:1,carpet:2,metal:3,wall:4,velvet:5,skin:6,glass:7};
