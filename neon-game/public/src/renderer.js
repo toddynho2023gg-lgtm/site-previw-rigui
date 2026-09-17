@@ -31,7 +31,6 @@ void main(){
   gl_Position=uProj*uView*w;
 }`;
 
-/* Mobile-safe GLSL ES 3.00: no array constructors or dynamic indexing. */
 const FS=`#version 300 es
 precision highp float;
 precision highp int;
@@ -60,7 +59,6 @@ void main(){
   else if(mat>4.5&&mat<5.5){rough=.9;base*=.94+.05*sin(vW.y*18.0);}
   else if(mat>5.5&&mat<6.5){rough=.5;}
   else if(mat>6.5&&mat<7.5){rough=.15;metallic=.15;}
-
   vec3 hemi=mix(vec3(.055,.065,.08),vec3(.34,.31,.26),clamp(n.y*.5+.5,0.0,1.0));vec3 c=base*hemi;
   vec3 kd1=normalize(vec3(-.42,.82,.28));float nd1=max(dot(n,kd1),0.0);c+=base*vec3(1.0,.83,.62)*nd1*.72;
   vec3 kd2=normalize(vec3(.55,.48,-.66));float nd2=max(dot(n,kd2),0.0);c+=base*vec3(.26,.43,.52)*nd2*.32;
@@ -73,7 +71,6 @@ void main(){
   c=aces(c*1.22);c=pow(c,vec3(.92));outColor=vec4(c,1.0);
 }`;
 
-/* Last-resort shader deliberately conservative for older/mobile WebGL2 drivers. */
 const FS_SAFE=`#version 300 es
 precision mediump float;
 precision mediump int;
@@ -102,26 +99,55 @@ function cubeMesh(gl){
   ];
   const p=[],n=[],idx=[];let v=0;for(let f=0;f<faces.length;f+=2){for(const q of faces[f])p.push(...q);for(let i=0;i<4;i++)n.push(...faces[f+1]);idx.push(v,v+1,v+2,v,v+2,v+3);v+=4}return makeMesh(gl,p,n,idx);
 }
-function cylinderMesh(gl,seg=28){
+function cylinderMesh(gl,seg=20){
   const p=[],n=[],idx=[];for(let i=0;i<=seg;i++){const a=i/seg*Math.PI*2,x=Math.cos(a),z=Math.sin(a);p.push(x,-1,z,x,1,z);n.push(x,0,z,x,0,z)}for(let i=0;i<seg;i++){const o=i*2;idx.push(o,o+1,o+3,o,o+3,o+2)}
   const bc=p.length/3;p.push(0,-1,0);n.push(0,-1,0);const tc=p.length/3;p.push(0,1,0);n.push(0,1,0);const bs=p.length/3;for(let i=0;i<=seg;i++){const a=i/seg*Math.PI*2;p.push(Math.cos(a),-1,Math.sin(a));n.push(0,-1,0)}const ts=p.length/3;for(let i=0;i<=seg;i++){const a=i/seg*Math.PI*2;p.push(Math.cos(a),1,Math.sin(a));n.push(0,1,0)}for(let i=0;i<seg;i++){idx.push(bc,bs+i+1,bs+i);idx.push(tc,ts+i,ts+i+1)}return makeMesh(gl,p,n,idx);
 }
-function sphereMesh(gl,lat=14,lon=20){
+function sphereMesh(gl,lat=10,lon=14){
   const p=[],n=[],idx=[];for(let y=0;y<=lat;y++){const phi=y/lat*Math.PI;for(let x=0;x<=lon;x++){const th=x/lon*Math.PI*2,sx=Math.sin(phi)*Math.cos(th),sy=Math.cos(phi),sz=Math.sin(phi)*Math.sin(th);p.push(sx,sy,sz);n.push(sx,sy,sz)}}for(let y=0;y<lat;y++)for(let x=0;x<lon;x++){const a=y*(lon+1)+x,b=a+lon+1;idx.push(a,a+1,b,b,a+1,b+1)}return makeMesh(gl,p,n,idx);
 }
 const MAT={default:0,stone:1,carpet:2,metal:3,wall:4,velvet:5,skin:6,glass:7};
+function mobileDevice(){return matchMedia?.('(pointer:coarse)')?.matches||/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent||'');}
+
 export class Renderer{
   constructor(canvas){
-    this.canvas=canvas;this.gl=canvas.getContext('webgl2',{antialias:true,alpha:false,powerPreference:'high-performance',depth:true,stencil:false});if(!this.gl)throw new Error('WebGL2 indisponível');const gl=this.gl;
-    this.shaderMode='ADVANCED';
-    try{this.p=program(gl,VS,FS)}catch(e){console.warn('[Renderer] Advanced shader failed; using MOBILE_SAFE fallback.',e);this.shaderMode='MOBILE_SAFE';this.p=program(gl,VS,FS_SAFE)}
-    this.cube=cubeMesh(gl);this.cyl=cylinderMesh(gl);this.sphere=sphereMesh(gl);this.quality='MEDIUM';this.drawCalls=0;this.start=performance.now();
+    this.canvas=canvas;this.mobile=!!mobileDevice();this.contextLost=false;this.safeForced=sessionStorage.getItem('neonSafeGraphics')==='1';
+    canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.contextLost=true;sessionStorage.setItem('neonSafeGraphics','1');window.dispatchEvent(new CustomEvent('neon:webgl-lost'));setTimeout(()=>{if(this.contextLost)location.reload()},1100)},{passive:false});
+    canvas.addEventListener('webglcontextrestored',()=>{window.dispatchEvent(new CustomEvent('neon:webgl-restored'));setTimeout(()=>location.reload(),120)});
+    this.gl=canvas.getContext('webgl2',{antialias:!this.mobile,alpha:false,powerPreference:'high-performance',depth:true,stencil:false,preserveDrawingBuffer:false});
+    if(!this.gl)throw new Error('WebGL2 indisponível');const gl=this.gl;
+    this.shaderMode=this.safeForced?'MOBILE_SAFE':'ADVANCED';
+    if(this.safeForced)this.p=program(gl,VS,FS_SAFE);else try{this.p=program(gl,VS,FS)}catch(e){console.warn('[Renderer] Advanced shader failed; using MOBILE_SAFE fallback.',e);this.shaderMode='MOBILE_SAFE';this.p=program(gl,VS,FS_SAFE)}
+    this.cube=cubeMesh(gl);this.cyl=cylinderMesh(gl);this.sphere=sphereMesh(gl);this.quality=this.mobile?'LOW':'MEDIUM';this.drawCalls=0;this.skipped=0;this.staticDrawCalls=0;this.start=performance.now();this.performanceScale=1;
+    this.cameraPos=[0,0,0];this.forward2=[0,-1];
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.frontFace(gl.CCW);gl.disable(gl.BLEND);
     this.u={model:gl.getUniformLocation(this.p,'uModel'),view:gl.getUniformLocation(this.p,'uView'),proj:gl.getUniformLocation(this.p,'uProj'),color:gl.getUniformLocation(this.p,'uColor'),em:gl.getUniformLocation(this.p,'uEmissive'),cam:gl.getUniformLocation(this.p,'uCam'),fog:gl.getUniformLocation(this.p,'uFog'),scale:gl.getUniformLocation(this.p,'uScale'),mat:gl.getUniformLocation(this.p,'uMaterial'),time:gl.getUniformLocation(this.p,'uTime')};this.resize();
   }
-  setQuality(q){this.quality=q;this.resize()}
-  resize(){const caps={LOW:.72,MEDIUM:1,HIGH:1.25,ULTRA:1.5};const dpr=Math.min(devicePixelRatio||1,caps[this.quality]||1),w=Math.max(1,Math.floor(innerWidth*dpr)),h=Math.max(1,Math.floor(innerHeight*dpr));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h}this.gl.viewport(0,0,w,h)}
-  begin(camera){const gl=this.gl;this.resize();gl.clearColor(.018,.021,.026,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(this.p);const dir=[Math.sin(camera.yaw)*Math.cos(camera.pitch),Math.sin(camera.pitch),-Math.cos(camera.yaw)*Math.cos(camera.pitch)],target=[camera.pos[0]+dir[0],camera.pos[1]+dir[1],camera.pos[2]+dir[2]];gl.uniformMatrix4fv(this.u.view,false,lookAt(camera.pos,target));gl.uniformMatrix4fv(this.u.proj,false,perspective(camera.fov,this.canvas.width/this.canvas.height,.055,130));if(this.u.cam)gl.uniform3fv(this.u.cam,camera.pos);if(this.u.fog)gl.uniform1f(this.u.fog,.0125);if(this.u.time)gl.uniform1f(this.u.time,(performance.now()-this.start)/1000);this.drawCalls=0}
-  draw(o){const gl=this.gl,m=o.shape==='cylinder'?this.cyl:o.shape==='sphere'?this.sphere:this.cube,s=o.scale||[1,1,1];gl.bindVertexArray(m.vao);gl.uniformMatrix4fv(this.u.model,false,modelMatrix(o.pos,s,o.yaw||0));if(this.u.scale)gl.uniform3fv(this.u.scale,s);gl.uniform3fv(this.u.color,o.color||[.5,.5,.5]);if(this.u.em)gl.uniform1f(this.u.em,o.emissive||0);if(this.u.mat)gl.uniform1f(this.u.mat,MAT[o.material]??0);gl.drawElements(gl.TRIANGLES,m.count,gl.UNSIGNED_SHORT,0);this.drawCalls++}
-  end(){this.gl.bindVertexArray(null)}
+  setQuality(q){this.quality=String(q||'MEDIUM').toUpperCase();this.performanceScale=1;this.resize()}
+  setPerformanceScale(v){this.performanceScale=Math.max(.58,Math.min(1,Number(v)||1))}
+  resize(){
+    const desktop={LOW:.72,MEDIUM:1,HIGH:1.25,ULTRA:1.5},mobile={LOW:.58,MEDIUM:.76,HIGH:.94,ULTRA:1.05};const caps=this.mobile?mobile:desktop;
+    const dpr=Math.min(devicePixelRatio||1,caps[this.quality]||1)*Math.max(.72,this.performanceScale),w=Math.max(1,Math.floor(innerWidth*dpr)),h=Math.max(1,Math.floor(innerHeight*dpr));
+    if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;this.gl.viewport(0,0,w,h)}
+  }
+  begin(camera){
+    if(this.contextLost||this.gl.isContextLost?.())return false;const gl=this.gl;this.resize();gl.clearColor(.018,.021,.026,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(this.p);
+    const dir=[Math.sin(camera.yaw)*Math.cos(camera.pitch),Math.sin(camera.pitch),-Math.cos(camera.yaw)*Math.cos(camera.pitch)],target=[camera.pos[0]+dir[0],camera.pos[1]+dir[1],camera.pos[2]+dir[2]];
+    this.cameraPos[0]=camera.pos[0];this.cameraPos[1]=camera.pos[1];this.cameraPos[2]=camera.pos[2];this.forward2[0]=Math.sin(camera.yaw);this.forward2[1]=-Math.cos(camera.yaw);
+    gl.uniformMatrix4fv(this.u.view,false,lookAt(camera.pos,target));gl.uniformMatrix4fv(this.u.proj,false,perspective(camera.fov,this.canvas.width/this.canvas.height,.055,130));if(this.u.cam)gl.uniform3fv(this.u.cam,camera.pos);if(this.u.fog)gl.uniform1f(this.u.fog,this.mobile?.014:.0125);if(this.u.time)gl.uniform1f(this.u.time,(performance.now()-this.start)/1000);this.drawCalls=0;this.staticDrawCalls=0;this.skipped=0;return true;
+  }
+  visible(o){
+    if(!this.mobile||o.forceVisible)return true;const s=o.scale||[1,1,1],dx=(o.pos?.[0]||0)-this.cameraPos[0],dz=(o.pos?.[2]||0)-this.cameraPos[2],d2=dx*dx+dz*dz;
+    const structural=s[0]>3.1||s[2]>3.1||s[1]>2.05;if(structural)return true;
+    const base={LOW:12.5,MEDIUM:18,HIGH:26,ULTRA:40}[this.quality]||18,limit=base*this.performanceScale;if(d2>limit*limit)return false;
+    if(d2>20){const d=Math.sqrt(d2),dot=(dx*this.forward2[0]+dz*this.forward2[1])/d;if(dot<-.18)return false;}
+    const budget={LOW:105,MEDIUM:145,HIGH:190,ULTRA:245}[this.quality]||145;if(o._static&&this.staticDrawCalls>=Math.floor(budget*this.performanceScale))return false;
+    return true;
+  }
+  draw(o){
+    if(this.contextLost||!this.visible(o)){this.skipped++;return false}const gl=this.gl,m=o.shape==='cylinder'?this.cyl:o.shape==='sphere'?this.sphere:this.cube,s=o.scale||[1,1,1];gl.bindVertexArray(m.vao);
+    let mm=o._static?o._modelCache:null;if(!mm){mm=modelMatrix(o.pos,s,o.yaw||0);if(o._static)o._modelCache=mm}gl.uniformMatrix4fv(this.u.model,false,mm);
+    if(this.u.scale)gl.uniform3fv(this.u.scale,s);gl.uniform3fv(this.u.color,o.color||[.5,.5,.5]);if(this.u.em)gl.uniform1f(this.u.em,o.emissive||0);if(this.u.mat)gl.uniform1f(this.u.mat,MAT[o.material]??0);gl.drawElements(gl.TRIANGLES,m.count,gl.UNSIGNED_SHORT,0);this.drawCalls++;if(o._static)this.staticDrawCalls++;return true;
+  }
+  end(){if(!this.contextLost)this.gl.bindVertexArray(null)}
 }
